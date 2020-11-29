@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "initDB": "node_modules/.bin/sequelize db:create",
     "migrate": "node_modules/.bin/sequelize db:migrate",
+    "seed": "node_modules/.bin/sequelize db:seed:all",
+    "seedUndo": "node_modules/.bin/sequelize db:seed:undo:all",
     "dev": "nodemon index.js"
   },
   "keywords": [],

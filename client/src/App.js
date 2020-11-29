@@ -1,13 +1,9 @@
 import React from 'react';
+import Router from './Pages';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      Hello World!
-       This Scrapper Result Page
-    </div>
-  );
+  return <Router />;
 }
 
 export default App;

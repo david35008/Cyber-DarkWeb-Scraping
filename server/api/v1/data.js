@@ -1,5 +1,5 @@
 const scrapperRouter = require('express').Router();
-const Data = require('../../models/Data');
+const { Data } = require('../../models');
 
 // get all data
 scrapperRouter.get('/', async (req, res) => {
@@ -30,7 +30,7 @@ scrapperRouter.post('/', async (req, res) => {
 });
 
 // update data
-scrapperRouter.patch('/:id', async (req, res) => {
+scrapperRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const destructedData = {
@@ -44,7 +44,7 @@ scrapperRouter.patch('/:id', async (req, res) => {
                 id,
             },
         });
-        res.json(editData);
+        res.json({ message: 'Edited Success' });
     } catch (error) {
         console.error(error);
         res.status(400).json({ message: 'Cannot process request' });
