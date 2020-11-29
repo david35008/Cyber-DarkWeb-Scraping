@@ -1,10 +1,21 @@
 const scrapperRouter = require('express').Router();
+const { Op } = require('sequelize');
 const { Data } = require('../../models');
 
 // get all data
 scrapperRouter.get('/', async (req, res) => {
+    const { query } = req.query;
     try {
-        const allData = await Data.findAll({});
+        const allData = await Data.findAll({
+            where: {
+                [Op.or]: [
+                    { author: { [Op.like]: `%${query}%` } },
+                    { title: { [Op.like]: `%${query}%` } },
+                    { content: { [Op.like]: `%${query}%` } },
+                ],
+            },
+            order: [['createdAt', 'DESC']]
+        });
         res.json(allData);
     } catch (error) {
         console.error(error);

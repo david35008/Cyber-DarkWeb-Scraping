@@ -6,11 +6,11 @@ const app = require('./app');
 const port = process.env.PORT || 8080;
 
 async function runScrapperInterval() {
-    // scrapper();
-    // const scrapperInterval = setInterval(() => {
-    //     scrapper();
-    //     console.log('run scrapper is on');
-    // }, 1000 * 60 * 2)
+    scrapper();
+    setInterval(() => {
+        scrapper();
+        console.log('Scrapper Searched For New Information');
+    }, 1000 * 60 * 2)
 }
 
 runScrapperInterval();
