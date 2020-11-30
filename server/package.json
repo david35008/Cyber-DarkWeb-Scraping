@@ -20,10 +20,12 @@
     "express": "^4.17.1",
     "helmet": "^4.2.0",
     "morgan": "^1.10.0",
-    "puppeteer": "^5.5.0",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.4",
-    "sequelize": "^6.3.5"
+    "puppeteer": "^5.5.0",
+    "sentiment": "^5.0.2",
+    "sequelize": "^6.3.5",
+    "wink-ner": "^2.1.0"
   },
   "devDependencies": {
     "sequelize-cli": "^6.2.0"

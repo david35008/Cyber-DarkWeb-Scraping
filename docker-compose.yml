@@ -1,0 +1,61 @@
+version: "2.2"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=scrapper
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.10
+
+  tor-browser:
+    image: dperson/torproxy
+    container_name: tor-browser
+    environment:
+      - TORUSER=root
+    ports:
+      - "8118:8118"
+      - "9050:9050"
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.11
+
+  server-scrapping:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./server
+        target: /app/server
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=scrapper
+      - DB_HOST=mysql
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.12
+    depends_on:
+      - mysql
+
+networks:
+  frontApp:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16

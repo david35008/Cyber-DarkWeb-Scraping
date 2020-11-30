@@ -12,7 +12,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import useDebounce from '../Debounce';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -140,7 +139,7 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton onClick aria-label="show 11 new notifications" color="inherit">
+        <IconButton aria-label="show 11 new notifications" color="inherit">
           <Badge badgeContent={news} color="secondary">
             <NotificationsIcon />
           </Badge>

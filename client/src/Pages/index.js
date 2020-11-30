@@ -4,6 +4,7 @@ import axios from 'axios';
 import ErrorBoundary from "../Components/ErrorBoundary";
 import Loading from "../Components/Loading";
 import Header from "../Components/Header";
+import useDebounce from '../Components/Debounce';
 
 const NotFound = lazy(() => import("./NotFound"));
 const Home = lazy(() => import("./Home"));
@@ -14,26 +15,48 @@ export default function Router() {
     const [newData, setNewData] = useState([]);
     const [newDataLength, setNewDataLength] = useState(0);
     const [searchInput, setSearchInput] = useState('')
+    const [isSearching, setIsSearching] = useState(false);
+    const [sentiment, setSentiment] = useState("default");
+    const [url, setUrl] = useState("/api/v1/data");
+    
+    const debouncedSearchTerm = useDebounce(searchInput, 500);
 
     const fetchData = async () => {
         try {
-            const { data: dataFromDb } = await axios.get(`/api/v1/data?query=${searchInput}`);
+            const query = searchInput ? `?query=${searchInput}` : "";
+            const { data: dataFromDb } = await axios.get(`${url}${query}`);
             // if (data.length > state.length) {
             // setNewDataLength(data.length - state.length)
             // setNewData(data.slice(state.length, data.length - state.length))
             setData(dataFromDb);
+            setIsSearching(false);
             // }
         } catch (error) {
             console.error(error);
         }
     }
 
+    const sentimentHandler = (sentimentValue) => {
+        setSentiment(sentimentValue);
+        if (sentimentValue !== "default") {
+            setUrl(`/api/v1/data/${sentimentValue}`);
+        } else {
+            setUrl(`/api/v1/data`);
+        }
+    };
+
+
     useEffect(() => {
         // const getData = setInterval(async () => {
-        fetchData();
+        if (debouncedSearchTerm) {
+            setIsSearching(true);
+            fetchData();
+        } else {
+            fetchData();
+        }
         // }, 5000);
         // return () => clearInterval(getData);
-    }, [searchInput])
+    }, [debouncedSearchTerm, url])
 
     return (
         <BrowserRouter>
@@ -49,7 +72,7 @@ export default function Router() {
                     />
                     <Switch >
                         <Route exact path="/">
-                            <Home data={data} />
+                            <Home data={data} sentimentHandler={sentimentHandler} sentiment={sentiment} />
                         </Route>
                         <Route path="*">
                             <NotFound />

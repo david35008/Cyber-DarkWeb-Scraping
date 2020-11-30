@@ -11,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import Chip from '@material-ui/core/Chip';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -43,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function RecipeReviewCard({ title, content, author, date }) {
+export default function RecipeReviewCard({ title, content, author, date, nerAnalysis, score }) {
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState(false);
 
@@ -69,6 +70,12 @@ export default function RecipeReviewCard({ title, content, author, date }) {
             />
 
             <CardContent>
+                {nerAnalysis.map((label, index) =>
+                    <Chip key={label + index} label={label} color="primary" />
+                )}
+                <Typography variant="body2" color="textSecondary" component="p">
+                    score: {score}
+                </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
                     {author}
                 </Typography>
