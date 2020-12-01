@@ -1,0 +1,4 @@
+fastapi
+tortoise-orm[aiomysql]
+pytest
+
