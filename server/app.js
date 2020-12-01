@@ -7,10 +7,7 @@ app.use(require("./middleware/morgan"));
 
 app.use('/api', require('./api'));
 
-app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
-app.use('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-});
+app.use(express.static(path.join(__dirname, '.', 'build')));
 
 app.use('*', (req, res) => {
     res.sendStatus(404);

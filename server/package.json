@@ -9,12 +9,14 @@
     "migrate": "node_modules/.bin/sequelize db:migrate",
     "seed": "node_modules/.bin/sequelize db:seed:all",
     "seedUndo": "node_modules/.bin/sequelize db:seed:undo:all",
-    "dev": "nodemon index.js"
+    "dev": "node_modules/.bin/sequelize db:create && node_modules/.bin/sequelize db:migrate && nodemon -L index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.0",
+    "axios-socks5-agent": "^1.0.1",
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

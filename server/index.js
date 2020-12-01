@@ -1,5 +1,5 @@
 require('dotenv').config();
-const scrapper = require('./Scrapper');
+const scrapper = require('./Scrapper/axios-scrapper');
 
 const app = require('./app');
 

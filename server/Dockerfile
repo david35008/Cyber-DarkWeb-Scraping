@@ -1,12 +1,10 @@
 FROM node:12
 
-WORKDIR /app/app-node
+WORKDIR /app/server-express
 
 COPY ./package.json ./
 
 RUN npm install
 
 COPY . .
-COPY ../client/build ../client/build
-
 

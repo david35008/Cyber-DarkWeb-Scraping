@@ -8,7 +8,32 @@ const Sentiment = require("sentiment");
 const sentiment = new Sentiment();
 //================NER Analysis config=====================
 const myNER = ner();
-const trainingData = [{ text: "%", entityType: "percent" }];
+const trainingData = [
+    { text: "%", entityType: "percent" },
+    { text: "sql", entityType: "Data" },
+    { text: "mongo-db", entityType: "Data" },
+    { text: "data", entityType: "Data" },
+    { text: "information", entityType: "Data" },
+    { text: "info", entityType: "Data" },
+    { text: "gun", entityType: "weapons" },
+    { text: "weapons", entityType: "weapons" },
+    { text: "rifle", entityType: "weapons" },
+    { text: "sword", entityType: "weapons" },
+    { text: "explosives", entityType: "weapons" },
+    { text: "bomb", entityType: "weapons" },
+    { text: "handgun", entityType: "weapons" },
+    { text: "smg", entityType: "weapons" },
+    { text: "weapon", entityType: "weapons" },
+    { text: "instagram", entityType: "social media" },
+    { text: "facebook", entityType: "social media" },
+    { text: "twitter", entityType: "social media" },
+    { text: "whatsapp", entityType: "social media" },
+    { text: "hack", entityType: "hacking" },
+    { text: "hacker", entityType: "hacking" },
+    { text: "hacked", entityType: "hacking" },
+    { text: "exploit", entityType: "hacking" },
+    { text: "bitcoin", entityType: "bitcoin" },
+  ];
 const tokenize = winkTokenizer().tokenize;
 myNER.learn(trainingData);
 
@@ -32,13 +57,24 @@ scrapperRouter.get("/", async (req, res) => {
             allData = await Data.findAll({ order: [["date", "DESC"]] });
         }
         const nerAnalysisData = allData.map((element) => {
-            const tokens = tokenize(element.dataValues.content);
+            const contentTokens = tokenize(element.dataValues.content);
+            const titleTokens = tokenize(element.dataValues.title);
+            const tokens = [...contentTokens, ...titleTokens];
             const results = myNER.recognize(tokens);
-            element.dataValues.nerAnalysis = results
+            const entities = new Set(
+              results.map((result) => result.entityType).filter((x) => !!x)
+            );
+            const tags = new Set(
+              results
                 .map((result) => result.tag)
-                .filter((tag) => tag === "url" || tag === "currency");
+                .filter(
+                  (tag) => tag === "url" || tag === "currency" || tag === "email"
+                )
+            );
+            element.dataValues.nerAnalysis = [...tags, ...entities];
             return element;
-        });
+          });
+      
         const allDataWithScore = nerAnalysisData.map((element) => {
             const titleResult = sentiment.analyze(element.title);
             const contentResult = sentiment.analyze(element.content);
@@ -74,7 +110,28 @@ scrapperRouter.get("/:sentimentParam", async (req, res) => {
         } else {
             allData = await Data.findAll({ order: [["date", "DESC"]] });
         }
-        const allDataWithScore = allData.map((element) => {
+        const nerAnalysisData = allData.map((element) => {
+            const contentTokens = tokenize(element.dataValues.content);
+            const titleTokens = tokenize(element.dataValues.title);
+            const tokens = [...contentTokens, ...titleTokens];
+            const results = myNER.recognize(tokens);
+            const entities = new Set(
+              results.map((result) => result.entityType).filter((x) => !!x)
+            );
+            const tags = new Set(
+              results
+                .map((result) => result.tag)
+                .filter(
+                  (tag) => tag === "url" || tag === "currency" || tag === "email"
+                )
+            );
+            element.dataValues.nerAnalysis = [...tags, ...entities];
+            return element;
+          });
+
+
+
+        const allDataWithScore = nerAnalysisData.map((element) => {
             const titleResult = sentiment.analyze(element.title);
             const contentResult = sentiment.analyze(element.content);
             const authorResult = sentiment.analyze(element.author);

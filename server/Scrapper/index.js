@@ -50,6 +50,10 @@ module.exports = async function main() {
             }
         })
         .filter((item) => !!item);
-    await Data.bulkCreate(data);
-    console.log(data);
+    if (data.length > 0) {
+        await Data.bulkCreate(data);
+        console.table(data)
+    } else {
+        console.log('There is no new information');
+    }
 };
