@@ -1,5 +1,6 @@
 require('dotenv').config();
 const scrapper = require('./Scrapper/axios-scrapper');
+const alertingFinder = require("./AlertingFinder");
 
 const app = require('./app');
 
@@ -9,11 +10,18 @@ async function runScrapperInterval() {
     scrapper();
     setInterval(() => {
         scrapper();
-        console.log('Scrapper Searched For New Information');
     }, 1000 * 60 * 2)
 }
 
+async function runAlertFinderInterval() {
+    alertingFinder();
+    setInterval(() => {
+        alertingFinder();
+    }, 1000 * 60 * 2);
+}
+
 runScrapperInterval();
+runAlertFinderInterval();
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);

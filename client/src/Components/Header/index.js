@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { fade, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
+import { Link } from "react-router-dom";
+import {
+  Menu, MenuItem, Badge, InputBase, Typography,
+  IconButton, Toolbar, AppBar, Button
+} from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import KeyWordModal from '../Modals/keyWordsModal';
+import useDebounce from '../Debounce';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -78,22 +78,57 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PrimarySearchAppBar({ searchInput, setSearchInput, news, setNewData, setNewDataLength, newData }) {
+export default function PrimarySearchAppBar({ url, setData, notificationsCount = 1 }) {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [openKeyWordModal, setOpenKeyWordModal] = useState(false);
+  const [keyWordsData, setKeyWordsData] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  
+  const [searchInput, setSearchInput] = useState('')
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
+
+  const fetchData = async () => {
+    try {
+      const query = searchInput ? `?query=${searchInput}` : "";
+      const { data: dataFromDb } = await axios.get(`${url}${query}`);
+      setData(dataFromDb);
+      setIsSearching(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setIsSearching(true);
+      fetchData();
+    } else {
+      fetchData();
+    }
+  }, [debouncedSearchTerm, url])
+
+  
+  const fetchKeyWordsData = async () => {
+    const { data } = await axios.get("/api/v1/keyword");
+    setKeyWordsData(data);
+  };
+
+  useEffect(() => {
+    fetchKeyWordsData();
+  }, []);
+
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-    setNewDataLength(0)
   };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
-    setNewData([]);
   };
 
   const handleMenuClose = () => {
@@ -111,7 +146,7 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
 
 
   const menuId = 'primary-search-account-menu';
-  const renderMenu = (
+  const renderComputerMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -121,9 +156,6 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      {newData.length > 0 ? newData.map(data =>
-        <MenuItem onClick={handleMenuClose}>{data.title}</MenuItem>
-      ) : <h3>No New Data</h3>}
     </Menu>
   );
 
@@ -139,13 +171,27 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
+        <Link className={classes.link} to="/alerts">
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="default"
+            aria-label="menu"
+          >
+            Alerts
+              </IconButton>
+        </Link>
+      </MenuItem>
+      <MenuItem>
+        <Button onClick={() => setOpenKeyWordModal(true)}>KeyWords</Button>
+      </MenuItem>
+      <MenuItem>
         <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={news} color="secondary">
+          <Badge badgeContent={notificationsCount} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>
       </MenuItem>
-
     </Menu>
   );
 
@@ -180,6 +226,23 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
           </div>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
+            <Link className={classes.link} to="/alerts">
+              <IconButton
+                edge="start"
+                className={classes.menuButton}
+                color="default"
+                aria-label="menu"
+              >
+                Alerts
+              </IconButton>
+            </Link>
+            <Button onClick={() => setOpenKeyWordModal(true)}>KeyWords</Button>
+            <KeyWordModal
+              open={openKeyWordModal}
+              setOpen={setOpenKeyWordModal}
+              keyWordsData={keyWordsData}
+              fetchKeyWordsData={fetchKeyWordsData}
+            />
             <IconButton
               edge="end"
               aria-label="account of current user"
@@ -188,7 +251,7 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <Badge badgeContent={news} color="secondary">
+              <Badge badgeContent={notificationsCount} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -208,7 +271,7 @@ export default function PrimarySearchAppBar({ searchInput, setSearchInput, news,
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
-      {renderMenu}
+      {renderComputerMenu}
     </div>
   );
 }

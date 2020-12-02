@@ -1,19 +1,16 @@
 # pylint: disable=E0611
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from typing import List
-
 from fastapi import FastAPI, HTTPException
 from models import Data_Pydantic, DataIn_Pydantic, Data
 from pydantic import BaseModel
-
 from tortoise.contrib.fastapi import HTTPNotFoundError, register_tortoise
 
 app = FastAPI(title="Tortoise ORM FastAPI example")
-
-
 class Status(BaseModel):
     message: str
-
 
 @app.get("/data", response_model=List[Data_Pydantic])
 async def get_datas():
@@ -22,28 +19,26 @@ async def get_datas():
 
 @app.post("/data", response_model=Data_Pydantic)
 async def create_data(data: DataIn_Pydantic):
-    data_obj = await Datas.create(**data.dict(exclude_unset=True))
+    data_obj = await Data.create(**data.dict(exclude_unset=True))
     return await Data_Pydantic.from_tortoise_orm(data_obj)
 
-
-@app.get(
-    "/data/{data_id}", response_model=Data_Pydantic, responses={404: {"model": HTTPNotFoundError}}
-)
-async def get_data(data_id: int):
-    return await Data_Pydantic.from_queryset_single(Datas.get(id=data_id))
-
+# @app.get(
+#     "/data/{sentimentParam}", response_model=Data_Pydantic, responses={404: {"model": HTTPNotFoundError}}
+# )
+# async def get_data(sentimentParam: str):
+#     return await Data_Pydantic.from_queryset_single(Data.get(id=data_id))
 
 @app.put(
     "/data/{data_id}", response_model=Data_Pydantic, responses={404: {"model": HTTPNotFoundError}}
 )
 async def update_data(data_id: int, data: DataIn_Pydantic):
-    await Datas.filter(id=data_id).update(**data.dict(exclude_unset=True))
-    return await Data_Pydantic.from_queryset_single(Datas.get(id=data_id))
+    await Data.filter(id=data_id).update(**data.dict(exclude_unset=True))
+    return await Data_Pydantic.from_queryset_single(Data.get(id=data_id))
 
 
 @app.delete("/data/{data_id}", response_model=Status, responses={404: {"model": HTTPNotFoundError}})
 async def delete_data(data_id: int):
-    deleted_count = await Datas.filter(id=data_id).delete()
+    deleted_count = await Data.filter(id=data_id).delete()
     if not deleted_count:
         raise HTTPException(
             status_code=404, detail=f"Data {data_id} not found")
@@ -59,11 +54,11 @@ register_tortoise(
             'default': {
                 'engine': 'tortoise.backends.mysql',
                 'credentials': {
-                    'user': 'root',
-                    'host': '127.0.0.1',
-                    'port': '3306',
-                    'password': 'david12345',
-                    'database': 'scrapper',
+                    'user': os.getenv('MYSQL_USER'),
+                    'host': os.getenv('DB_HOST'),
+                    'port': os.getenv('MYSQL_PORT'),
+                    'password': os.getenv('MYSQL_PASSWORD'),
+                    'database': os.getenv('MYSQL_DATABASE'),
                 },
                 'minsize': 100,
                 'maxsize': 500

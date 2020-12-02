@@ -1,4 +1,4 @@
 fastapi
 tortoise-orm[aiomysql]
 pytest
-
+python-dotenv

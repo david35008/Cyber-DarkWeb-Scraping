@@ -20,7 +20,8 @@ const { httpAgent, httpsAgent } = new SocksAgent({
     host: IP_ADDRESS
 });
 
-module.exports = async function main() {
+module.exports = async function axiosScrapper() {
+    console.log('Scrapper Searched For New Information');
     try {
         const { data: content } = await axios.get(
             "http://nzxj65x32vh2fkhk.onion/all",
@@ -72,7 +73,7 @@ module.exports = async function main() {
             await Data.bulkCreate(data);
             console.table(data)
         } else {
-            console.log('There is no new information');
+            console.log("Scrapper didn't found new information");
         }
     } catch (error) {
         console.error(error.message);
