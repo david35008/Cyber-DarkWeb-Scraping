@@ -1,0 +1,122 @@
+version: "2.2"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=scrapper
+      - MYSQL_TCP_PORT=3307
+    ports:
+      - "3307:3307"
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.10
+
+  tor-browser:
+    image: dperson/torproxy
+    container_name: tor-browser
+    environment:
+      - TORUSER=root
+    ports:
+      - "8118:8118"
+      - "9050:9050"
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.11
+
+  server-scrapping:
+    container_name: node-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./server
+        target: /app/server-express
+    command: npm run dev
+    environment:
+      - MYSQL_PORT=3307
+      - NODE_ENV=development
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=scrapper
+      - DB_HOST=mysql
+      - ENVIRONMENT=docker
+
+      
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.12
+    depends_on:
+      - mysql
+      - tor-browser
+
+  dark-web-scrapper:
+    container_name: scrapper
+    build:
+      context: ./scrapper-server
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./scrapper-server
+        target: /app/scrapper
+    command: node index.js
+    environment:
+      - NODE_ENV=development
+      - IP_ADDRESS=172.22.0.11
+      - WEBHOOK_IP=172.22.0.12
+      - WEBHOOK_PORT=8000
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.14
+    depends_on:
+      - tor-browser
+      - server-scrapping
+
+  server-python:
+    container_name: python-server
+    build:
+      context: ./server-python
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "8001:8000"
+    volumes:
+      - type: bind
+        source: ./server-python
+        target: /app/server-python
+    command: sh -c '/app/server-python/wait_for_it.sh mysql:3307 && /start-reload.sh'
+    environment:
+      - WORKERS_PER_CORE=4
+      - MYSQL_PORT=3307
+      - MYSQL_ROOT_PASSWORD=12345
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=scrapper
+      - DB_HOST=mysql
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.13
+    depends_on:
+      - mysql
+
+
+networks:
+  frontApp:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
