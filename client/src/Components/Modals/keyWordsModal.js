@@ -5,6 +5,7 @@ import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Chip from "@material-ui/core/Chip";
+import Backdrop from '@material-ui/core/Backdrop';
 
 function getModalStyle() {
     const top = 50;
@@ -68,6 +69,11 @@ export default function KeyWordModal({
                 onClose={handleClose}
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description"
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                  timeout: 500,
+                }}
+
             >
                 <div style={modalStyle} className={classes.paper}>
                     <h2 id="simple-modal-title" style={{ textAlign: "center" }}>

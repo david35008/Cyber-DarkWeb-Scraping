@@ -6,12 +6,17 @@ import {
   Menu, MenuItem, Badge, InputBase, Typography,
   IconButton, Toolbar, AppBar, Button
 } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
+import ErrorIcon from "@material-ui/icons/Error";
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import AnnouncementIcon from "@material-ui/icons/Announcement";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import { blue } from '@material-ui/core/colors';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import KeyWordModal from '../Modals/keyWordsModal';
-import useDebounce from '../Debounce';
+import useDebounce from '../../Helpers/Debounce';
+import useEventSource from '../../Helpers/eventSourceHook';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -75,44 +80,47 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
+    link: {
+      marginTop: '30px',
+      textDecoration: 'none',
+      fontSize: '0.875rem',
+      alignItems: 'center',
+      alignContent: 'center',
+      justifyContent: 'center'
+
+    },
+    linkButton: {
+      marginTop: '30px',
+      alignItems: 'center',
+      alignContent: 'center',
+      justifyContent: 'center'
+    }
   },
 }));
 
-export default function PrimarySearchAppBar({ url, setData, notificationsCount = 1 }) {
+function HomeIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </SvgIcon>
+  );
+}
+
+export default function PrimarySearchAppBar({ url, setData }) {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+
   const [openKeyWordModal, setOpenKeyWordModal] = useState(false);
-  const [keyWordsData, setKeyWordsData] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  
-  const [searchInput, setSearchInput] = useState('')
-  const debouncedSearchTerm = useDebounce(searchInput, 500);
+  const [notifications, setNotifications] = useState([]);
 
-  const fetchData = async () => {
-    try {
-      const query = searchInput ? `?query=${searchInput}` : "";
-      const { data: dataFromDb } = await axios.get(`${url}${query}`);
-      setData(dataFromDb);
-      setIsSearching(false);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
+  const data = useEventSource("http://localhost:8000/api/v1/notifications");
   useEffect(() => {
-    if (debouncedSearchTerm) {
-      setIsSearching(true);
-      fetchData();
-    } else {
-      fetchData();
+    if (data) {
+      setNotifications((prev) => [...prev, data]);
     }
-  }, [debouncedSearchTerm, url])
+  }, [data]);
 
-  
+  const [keyWordsData, setKeyWordsData] = useState([]);
+
   const fetchKeyWordsData = async () => {
     const { data } = await axios.get("/api/v1/keyword");
     setKeyWordsData(data);
@@ -123,46 +131,161 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
   }, []);
 
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleMobileMenuOpen = (event) => {
+    setIsMobileMenuOpen(event.currentTarget);
   };
 
   const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
+    setIsMobileMenuOpen(null);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const [isNotificationsMenuOpen, SetIsNotificationsMenuOpen] = useState(false);
+
+  const handleNotificationsMenuOpen = (event) => {
+    if (notifications.length > 0) {
+      SetIsNotificationsMenuOpen(event.currentTarget);
+    }
+  };
+
+  const handleNotificationsMenuClose = () => {
+    SetIsNotificationsMenuOpen(null);
     handleMobileMenuClose();
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+  const [searchInput, setSearchInput] = useState('')
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
 
   const handleInputChange = (event) => {
     setSearchInput(event.target.value);
   };
 
+  const fetchData = async () => {
+    try {
+      const query = searchInput ? `?query=${searchInput}` : "";
+      const { data: dataFromDb } = await axios.get(`${url}${query}`);
+      setData(dataFromDb);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      fetchData();
+    } else {
+      fetchData();
+    }
+    // eslint-disable-next-line
+  }, [debouncedSearchTerm, url])
+
+  const handleReadAll = () => {
+    handleNotificationsMenuClose()
+    setNotifications([]);
+  };
+
+  const handleClose = (index) => {
+    handleNotificationsMenuClose()
+    const newNotifications = [...notifications];
+    newNotifications.splice(index, 1);
+    setNotifications(newNotifications);
+  };
 
   const menuId = 'primary-search-account-menu';
   const renderComputerMenu = (
     <Menu
-      anchorEl={anchorEl}
+      anchorEl={isNotificationsMenuOpen}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       id={menuId}
       keepMounted
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
+      open={isNotificationsMenuOpen}
+      onClose={handleNotificationsMenuClose}
     >
+      {notifications.length > 0 ? (
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography
+            variant="h6"
+            className={classes.title}
+            style={{ paddingLeft: 5 }}
+          >
+            Notifications
+                </Typography>
+          <Button onClick={() => handleReadAll()}>
+            Mark All As Read
+                </Button>
+        </div>
+      ) : null}
+      {notifications.length > 0
+        ? notifications.map((element, index) => {
+          if (element.name === "notifications-alerts") {
+            return (
+              <MenuItem
+                key={element.name + index}
+                onClick={() => { handleClose(index); }}
+              >
+                <Link className={classes.link} style={{ textDecoration: 'none' }} to="/alerts">
+                  <div
+                    style={{
+                      color: "blue",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                    className={classes.linkButton}
+                  >
+                    <AnnouncementIcon />
+                    {element.message}
+                  </div>
+                </Link>
+              </MenuItem>
+            );
+          } else if (element.name === "scrapperFailed") {
+            return (
+              <MenuItem
+                key={element.name + index}
+                onClick={() => handleClose(index)}
+              >
+                <div
+                  style={{
+                    color: "red",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ErrorIcon />
+                  {element.message}
+                </div>
+              </MenuItem>
+            );
+          } else {
+            return (
+              <MenuItem
+                key={element.name + index}
+                onClick={() => handleClose(index)}
+              >
+                <div
+                  style={{
+                    color: "green",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircleIcon />
+                  {element.message}
+                </div>
+              </MenuItem>
+            );
+          }
+        })
+        : null}
     </Menu>
   );
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = (
     <Menu
-      anchorEl={mobileMoreAnchorEl}
+      anchorEl={isMobileMenuOpen}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       id={mobileMenuId}
       keepMounted
@@ -171,15 +294,20 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <Link className={classes.link} to="/alerts">
-          <IconButton
+        <Link className={classes.link} style={{ textDecoration: 'none' }} to="/alerts">
+          <Button
             edge="start"
             className={classes.menuButton}
+            style={{
+              alignItems: 'center',
+              alignContent: 'center',
+              justifyContent: 'center'
+            }}
             color="default"
             aria-label="menu"
           >
             Alerts
-              </IconButton>
+              </Button>
         </Link>
       </MenuItem>
       <MenuItem>
@@ -187,7 +315,7 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
       </MenuItem>
       <MenuItem>
         <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={notificationsCount} color="secondary">
+          <Badge badgeContent={notifications.length} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>
@@ -199,14 +327,16 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
     <div className={classes.grow}>
       <AppBar position="fixed">
         <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="open drawer"
-          >
-            <MenuIcon />
-          </IconButton>
+          <Link to='/' >
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="open drawer"
+            >
+              <HomeIcon style={{ color: blue[50] }} />
+            </IconButton>
+          </Link>
           <Typography className={classes.title} variant="h6" noWrap>
             Cyber Insights Scrapper DarkWeb
           </Typography>
@@ -226,15 +356,20 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
           </div>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <Link className={classes.link} to="/alerts">
-              <IconButton
+            <Link className={classes.link} style={{ textDecoration: 'none' }} to="/alerts">
+              <Button
                 edge="start"
                 className={classes.menuButton}
+                style={{
+                  alignItems: 'center',
+                  alignContent: 'center',
+                  justifyContent: 'center'
+                }}
                 color="default"
                 aria-label="menu"
               >
                 Alerts
-              </IconButton>
+              </Button>
             </Link>
             <Button onClick={() => setOpenKeyWordModal(true)}>KeyWords</Button>
             <KeyWordModal
@@ -248,10 +383,10 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
               aria-label="account of current user"
               aria-controls={menuId}
               aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
+              onClick={handleNotificationsMenuOpen}
               color="inherit"
             >
-              <Badge badgeContent={notificationsCount} color="secondary">
+              <Badge badgeContent={notifications.length} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -275,3 +410,19 @@ export default function PrimarySearchAppBar({ url, setData, notificationsCount =
     </div>
   );
 }
+
+
+/*
+
+
+
+
+  const handleClose = (index) => {
+    setAnchorEl(null);
+    const newNotifications = [...notifications];
+    newNotifications.splice(index, 1);
+    setNotifications(newNotifications);
+  };
+
+
+*/

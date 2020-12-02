@@ -32,6 +32,7 @@ services:
         ipv4_address: 172.22.0.11
 
   server-scrapping:
+    container_name: node-server
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -52,6 +53,7 @@ services:
       - DB_HOST=mysql
       - ENVIRONMENT=docker
 
+      
     networks:
       frontApp:
         ipv4_address: 172.22.0.12
@@ -59,7 +61,31 @@ services:
       - mysql
       - tor-browser
 
+  dark-web-scrapper:
+    container_name: scrapper
+    build:
+      context: ./scrapper-server
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./scrapper-server
+        target: /app/scrapper
+    command: node index.js
+    environment:
+      - NODE_ENV=development
+      - IP_ADDRESS=172.22.0.11
+      - WEBHOOK_IP=172.22.0.12
+      - WEBHOOK_PORT=8000
+
+    networks:
+      frontApp:
+        ipv4_address: 172.22.0.14
+    depends_on:
+      - tor-browser
+      - server-scrapping
+
   server-python:
+    container_name: python-server
     build:
       context: ./server-python
       dockerfile: Dockerfile

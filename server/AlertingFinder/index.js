@@ -1,5 +1,7 @@
 const { Op } = require("sequelize");
 const { Data, KeyWord, Alert } = require("../models");
+const eventEmitter = require("../Helpers/EventEmitter");
+
 
 module.exports = async function alertingFinder() {
     console.log('Start Alerting Key Word Search');
@@ -67,13 +69,21 @@ module.exports = async function alertingFinder() {
             });
 
             const allData = [...partialAlertData, ...fullAlertData];
-            console.log(keyWord.keyWord);
-            console.log(timeStamp);
-            console.log("allData", allData);
             await Alert.bulkCreate(allData);
+            if (allData.length > 0) {
+                eventEmitter.emit(
+                    "notifications-alerts",
+                    allData.length,
+                    keyWord.keyWord
+                );
+            }
         });
         console.log('Alerting Key Word Search Done!!');
     } catch (error) {
+        eventEmitter.emit(
+            "notifications-alerts-error",
+            error.message
+        );
         console.error('Alerting Finder Error')
         console.error(error);
     }
