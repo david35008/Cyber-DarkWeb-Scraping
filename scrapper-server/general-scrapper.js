@@ -32,19 +32,33 @@ module.exports = async function main(ymlFile) {
     );
     console.log(config["scrapper-url"]);
     try {
+
         const links = [];
         let $ = await pageLoader(config["scrapper-url"])
-        $(config["tasks"]["get-pastes-links"]["html-tag"]).each((idx, elem) => {
-            links.push(elem.attribs.href);
-        });
         let pageSum = 1
-        while ($(`${config["pages-system"]}`).last().children()[0].attribs.href) {
-            console.log('Try Page ', pageSum);
-            console.log($(`${config["pages-system"]}`).last().children()[0].attribs.href);
-            $ = await pageLoader($(`${config["pages-system"]}`).last().children()[0].attribs.href)
-            $(config["tasks"]["get-pastes-links"]["html-tag"]).each((idx, elem) => {
-                links.push(elem.attribs.href);
-            });
+
+        if (config["scrapper-url"] === "https://ideone.com/recent") {
+
+            while ($($(config["next-page"])[0].attribs.href)) {
+                $(config["tasks"]["get-pastes-links"]["html-tag"]).each((idx, elem) => {
+                    links.push(elem.attribs.href);
+                });
+                $ = await pageLoader(`${config["base-url"]}${$(config["next-page"])[0].attribs.href}`)
+                console.log('Try Page ', pageSum);
+                pageSum++
+            }
+        } else if (config["scrapper-url"] === "http://nzxj65x32vh2fkhk.onion/all") {
+
+            while ($($(config["next-page"])[0].attribs.href)) {
+
+                $(config["tasks"]["get-pastes-links"]["html-tag"]).each((idx, elem) => {
+                    links.push(elem.attribs.href);
+                });
+                $ = await pageLoader(`${config["base-url"]}${$(config["next-page"])[0].attribs.href}`)
+                console.log('Try Page ', pageSum);
+                pageSum++
+            }
+
         }
 
         console.log(links);
@@ -148,7 +162,7 @@ module.exports = async function main(ymlFile) {
         //         }
         //       );
     } catch (error) {
-        console.error(error.message);
+        console.error(error);
     }
     // }
 };

@@ -12,7 +12,7 @@ async function runScrapperInterval() {
 }
 
 // setTimeout(() => {
-    generalScrapper('stronghold-config');
+    generalScrapper('ideone-config');
 // }, 1000 * 60);
 
 console.log('Scrapper Ready');
