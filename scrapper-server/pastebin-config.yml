@@ -1,0 +1,16 @@
+# base config
+scrapper-url: https://pastebin.com/archive
+base-url: https://pastebin.com/
+dark-web:
+
+tasks:
+  get-pastes-links:
+    html-tag: div.archive-table > table > tbody > tr > td:nth-child(1) > a
+  get-pastes-titles:
+    html-tag: h1
+  get-pastes-contents:
+    html-tag: textarea
+  get-pastes-dates:
+    html-tag: body > div.wrap > div.container > div.content > div.post-view > div.details > div.info-bar > div.info-bottom > div.date
+  get-pastes-authors:
+    html-tag: body > div.wrap > div.container > div.content > div.post-view > div.details > div.info-bar > div.info-bottom > div.username

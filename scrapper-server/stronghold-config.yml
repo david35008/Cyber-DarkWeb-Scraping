@@ -1,0 +1,24 @@
+# base config
+scrapper-url: http://nzxj65x32vh2fkhk.onion/all
+base-url: http://nzxj65x32vh2fkhk.onion/all
+dark-web: true
+
+next-page: last().children()[0].attribs.href
+pages-system: .pagination > li
+
+tasks:
+  get-pages:
+    html-tag:
+  get-pastes-links:
+    html-tag: div.pre-info.pre-header div.row div.col-sm-7.text-right a.btn.btn-success
+  get-pastes-titles:
+    html-tag: h4
+  get-pastes-contents:
+    html-tag: div.well.well-sm.well-white.pre div.text ol
+  get-pastes-dates:
+    html-tag: div.pre-info.pre-footer div.row div.col-sm-6
+    is-in-string:
+      before: by
+      after: at
+  get-pastes-authors:
+    html-tag: div.pre-info.pre-footer div.row div.col-sm-6

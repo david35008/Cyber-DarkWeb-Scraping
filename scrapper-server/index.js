@@ -1,5 +1,6 @@
 require("dotenv").config();
 const scrapper = require("./scrapper-axios");
+const generalScrapper = require("./general-scrapper");
 
 async function runScrapperInterval() {
     scrapper();
@@ -11,6 +12,7 @@ async function runScrapperInterval() {
 }
 
 // setTimeout(() => {
-    runScrapperInterval();
+    generalScrapper('stronghold-config');
 // }, 1000 * 60);
 
+console.log('Scrapper Ready');
