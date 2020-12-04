@@ -112,18 +112,20 @@ export default function PrimarySearchAppBar({ url, setData }) {
   const [openKeyWordModal, setOpenKeyWordModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  const data = useEventSource("http://localhost:8000/api/v1/notifications");
+  const notificationsData = useEventSource("http://localhost:8000/api/v1/notifications");
+
   useEffect(() => {
-    if (data) {
-      setNotifications((prev) => [...prev, data]);
+    if (notificationsData) {
+      setNotifications((prev) => [...prev, notificationsData]);
     }
-  }, [data]);
+  }, [notificationsData]);
 
   const [keyWordsData, setKeyWordsData] = useState([]);
 
   const fetchKeyWordsData = async () => {
     const { data } = await axios.get("/api/v1/keyword");
     setKeyWordsData(data);
+
   };
 
   useEffect(() => {
@@ -178,7 +180,7 @@ export default function PrimarySearchAppBar({ url, setData }) {
       fetchData();
     }
     // eslint-disable-next-line
-  }, [debouncedSearchTerm, url])
+  }, [debouncedSearchTerm, url, keyWordsData])
 
   const handleReadAll = () => {
     handleNotificationsMenuClose()
@@ -223,7 +225,7 @@ export default function PrimarySearchAppBar({ url, setData }) {
             return (
               <MenuItem
                 key={element.name + index}
-                onClick={() => { handleClose(index); }}
+                onClick={() => { handleClose(index); window.location.reload(); }}
               >
                 <Link className={classes.link} style={{ textDecoration: 'none' }} to="/alerts">
                   <div

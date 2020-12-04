@@ -40,7 +40,7 @@ export default function Home() {
 
     return (
         <>
-            <Header url={url} setData={setData} />
+            <Header url={url} setData={setData} data={data} />
             {data ? (
                 <div className="App">
                     <>

@@ -59,6 +59,7 @@ export default function KeyWordModal({
     };
 
     const handleClose = () => {
+        fetchKeyWordsData();
         setOpen(false);
     };
 

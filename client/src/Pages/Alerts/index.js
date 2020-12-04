@@ -20,7 +20,7 @@ function AlertsPage() {
 
     return (
         <>
-            <Header url={url} setData={setData} />
+            <Header url={url} setData={setData} data={data} />
             <div
                 style={{
                     display: "flex",
