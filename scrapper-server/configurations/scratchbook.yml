@@ -1,0 +1,27 @@
+# base config
+scrapper-url: https://paste.scratchbook.ch/lists
+base-url: https://paste.scratchbook.ch
+dark-web:
+
+next-page: "#container > div > div.content > div > div.pages > a:nth-last-child(2)"
+
+tasks:
+  get-pastes-links:
+    html-tag: "td.first > a"
+  get-pastes-titles:
+    html-tag: "#container > div > div.content > div > div > div > h1"
+  get-pastes-contents:
+    html-tag: "#code"
+    hidden:
+  get-pastes-dates:
+    html-tag: "#container > div > div.content > div > div > div > div.meta >  span:nth-child(1)"
+    hidden:
+    is-in-string:
+      after: ","
+      before: "ago"
+      parse: true
+  get-pastes-authors:
+    html-tag: "#container > div > div.content > div > div > div > div.meta >  span:nth-child(1)"
+    is-in-string:
+      after: From
+      before: ","

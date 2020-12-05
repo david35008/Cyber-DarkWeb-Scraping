@@ -1,0 +1,22 @@
+# base config
+scrapper-url: https://ideone.com/recent
+base-url: https://ideone.com
+dark-web:
+
+next-page: "#recent_pager_down > div > div > ul > li:nth-last-child(2) > a"
+
+tasks:
+  get-pastes-links:
+    html-tag: "#_container > div.container.page-recent > div  .source-view > .header > strong > a"
+  get-pastes-titles:
+    html-tag: "#info > legend:nth-child(1)"
+  get-pastes-contents:
+    html-tag: "#code > legend.submenu1 > div > input"
+    hidden: true
+  get-pastes-dates:
+    html-tag: "#solution_date > span"
+    hidden: true
+    is-in-string:
+  get-pastes-authors:
+    html-tag:
+    is-in-string:

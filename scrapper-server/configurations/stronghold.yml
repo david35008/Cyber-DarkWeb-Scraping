@@ -3,8 +3,7 @@ scrapper-url: http://nzxj65x32vh2fkhk.onion/all
 base-url: http://nzxj65x32vh2fkhk.onion/all
 dark-web: true
 
-next-page: last().children()[0].attribs.href
-pages-system: .pagination > li
+next-page: .pagination > li:nth-child(4) > a:last-child
 
 tasks:
   get-pages:
@@ -15,10 +14,15 @@ tasks:
     html-tag: h4
   get-pastes-contents:
     html-tag: div.well.well-sm.well-white.pre div.text ol
+    hidden:
   get-pastes-dates:
     html-tag: div.pre-info.pre-footer div.row div.col-sm-6
+    hidden:
     is-in-string:
-      before: by
       after: at
+      before:
   get-pastes-authors:
     html-tag: div.pre-info.pre-footer div.row div.col-sm-6
+    is-in-string:
+      after: by
+      before: at

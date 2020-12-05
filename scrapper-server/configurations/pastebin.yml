@@ -1,18 +1,18 @@
 # base config
-scrapper-url: https://ideone.com/recent
-base-url: https://ideone.com
+scrapper-url: https://pastebin.com/archive
+base-url: https://pastebin.com
 dark-web:
-
-next-page: '#recent_pager_down > div > div > ul > li:nth-child(9) > a'
 
 tasks:
   get-pastes-links:
-    html-tag: '#_container > div.container.page-recent > div  .source-view > .header > strong > a'
+    html-tag: div.archive-table > table > tbody > tr > td:nth-child(1) > a
   get-pastes-titles:
     html-tag: h1
   get-pastes-contents:
     html-tag: textarea
   get-pastes-dates:
-    html-tag: 
+    html-tag: body > div.wrap > div.container > div.content > div.post-view > div.details > div.info-bar > div.info-bottom > div.date
+    is-in-string:
   get-pastes-authors:
     html-tag: body > div.wrap > div.container > div.content > div.post-view > div.details > div.info-bar > div.info-bottom > div.username
+    is-in-string:

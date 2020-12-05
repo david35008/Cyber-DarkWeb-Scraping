@@ -76,6 +76,7 @@ services:
       - IP_ADDRESS=172.22.0.11
       - WEBHOOK_IP=172.22.0.12
       - WEBHOOK_PORT=8000
+      - CONFIG=config-stronghold
 
     networks:
       frontApp:

@@ -11,11 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^2.0.4",
     "axios": "^0.21.0",
     "axios-socks5-agent": "^1.0.1",
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
-    "js-yaml": "^3.14.0"
+    "js-yaml": "^3.14.0",
+    "moment": "^2.29.1",
+    "nodemon": "^2.0.4"
   }
 }
