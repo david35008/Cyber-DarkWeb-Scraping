@@ -5,9 +5,9 @@ const { Data } = require('../../models');
 const ner = require("wink-ner");
 const winkTokenizer = require("wink-tokenizer");
 const Sentiment = require("sentiment");
-//=================sentiment config======================
+//=================sentiment config======================//
 const sentiment = new Sentiment();
-//================NER Analysis config=====================
+//================NER Analysis config=====================//
 const myNER = ner();
 const trainingData = [
     { text: "%", entityType: "percent" },
@@ -95,17 +95,17 @@ scrapperRouter.get("/", async (req, res) => {
 // lastEntry data
 scrapperRouter.get("/last-entry", async (req, res) => {
     try {
-      const lastEntry = await Data.findOne({
-        attribute: ["date"],
-        order: [["date", "DESC"]],
-      });
-      res.status(200).json(lastEntry);
+        const lastEntry = await Data.findOne({
+            attribute: ["date"],
+            order: [["date", "DESC"]],
+        });
+        res.status(200).json(lastEntry);
     } catch (error) {
-      console.error(error);
-      res.status(400).json({ message: "Cannot process request" });
+        console.error(error);
+        res.status(400).json({ message: "Cannot process request" });
     }
-  });
-  
+});
+
 
 
 scrapperRouter.get("/:sentimentParam", async (req, res) => {
@@ -181,7 +181,6 @@ scrapperRouter.post("/", async (req, res) => {
         await Data.bulkCreate(data);
         if (data.length > 0) {
             eventEmitter.emit("newData", data.length);
-            console.log(data);
         } else {
             console.log("There is No New Data");
         }

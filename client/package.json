@@ -29,7 +29,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "buildUi": "rm -rf build && cd client && npm run build --prod && cp -r build ../"
+    "buildUi": "rm -rf ../node-server/build && npm run build --prod && cp -r build ../node-server"
   },
   "eslintConfig": {
     "extends": [

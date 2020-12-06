@@ -3,6 +3,8 @@ scrapper-url: https://pastebin.com/archive
 base-url: https://pastebin.com
 dark-web:
 
+need-timeout: true
+
 tasks:
   get-pastes-links:
     html-tag: div.archive-table > table > tbody > tr > td:nth-child(1) > a
