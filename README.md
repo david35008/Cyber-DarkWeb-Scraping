@@ -5,7 +5,7 @@ CHALLENGE BY INTSIGHTS
 OCTOBER 2020
 
 
-
+![hide](.firefox_F94cLsz93u.png)
 
 
 
